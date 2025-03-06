@@ -1,4 +1,7 @@
+import numpy as np
+
 from preprocessing import *
+from costants import *
 
 def print_menu(message, choice_number):
     while True:
@@ -20,7 +23,7 @@ def main():
         "Choose the dataset you would like to use:\n" +
         "1 - Obesity\n" +
         "2 - Obesity with Feature Selection\n" +
-        "3 - Obesity with Rebalancing\n",
+        "3 - Obesity with Balancing\n",
         ["1", "2", "3"]
     )
 
@@ -33,9 +36,9 @@ def main():
     )
 
     if activation_function == "1":
-        "ReLU"
+        activation_function = "ReLU"
     elif activation_function == "2":
-        "tanh"
+        activation_function = "tanh"
 
     # Determining which type of regularization to use
     regularization = print_menu(
@@ -46,15 +49,14 @@ def main():
     )
 
     if regularization == "1":
-        "L1"
+        regularization = "L1"
     elif regularization == "2":
-        "L2"
+        regularization = "L2"
 
     # Preprocess chosen dataset
     if dataset_to_use == "1" or dataset_to_use == "2" or dataset_to_use == "3":
         dataset_name = "obesity"
         dataset = pd.read_csv("../datasets/" + dataset_name + ".csv")
-
         # Encodings of strings in numbers
         encode_obesity_dataset(dataset)
         label = "NObeyesdad"
@@ -66,6 +68,24 @@ def main():
             rebalancing = True
 
     X_train, X_valid, X_test, y_train, y_valid, y_test = preprocessing(dataset, label, test_size, validation_size, feature_sel, rebalancing)
+
+    # Choosing set of lambda for cross-validation
+    if regularization == "L1":
+        lambda_list = L1_LIST
+    elif regularization == "L2":
+        lambda_list = L2_LIST
+    else:
+        print("Invalid regularization type. Exiting\n")
+        return -1
+
+    # Defining layer for our neural networks
+    first_layer = X_train.shape[1]
+    last_layer = len(np.unique(y_train))
+    neural_network_layers = [[first_layer, 32, 32, last_layer], [first_layer, 64, 32, last_layer], [first_layer, 64, 64, last_layer],
+                             [first_layer, 128, 64, last_layer], [first_layer, 128, 128, last_layer], [first_layer, 256, 128, last_layer],
+                             [first_layer, 256, 256, last_layer], [first_layer, 512, 256, last_layer], [first_layer, 512, 512, last_layer]]
+
+    # Start with cross validation
 
 
 if __name__ == "__main__":
