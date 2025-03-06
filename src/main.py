@@ -13,15 +13,17 @@ def print_menu(message, choice_number):
             print("Choice is not valid. Please select a valid input\n")
 
 def main():
-    # Flag for testing dataset
+    # Flags for testing dataset
     feature_sel = False
+    rebalancing = False
 
     # Determining which dataset to use
     dataset_to_use = print_menu(
         "Choose the dataset you would like to use:\n" +
         "1 - Obesity\n" +
-        "2 - Obesity with Feature Selection\n",
-        ["1", "2"]
+        "2 - Obesity with Feature Selection\n" +
+        "3 - Obesity with Rebalancing\n",
+        ["1", "2", "3"]
     )
 
     # Determining which activation function to use
@@ -51,7 +53,7 @@ def main():
         "L2"
 
     # Preprocess chosen dataset
-    if dataset_to_use == "1" or dataset_to_use == "2":
+    if dataset_to_use == "1" or dataset_to_use == "2" or dataset_to_use == "3":
         dataset_name = "obesity"
         dataset = pd.read_csv("../datasets/" + dataset_name + ".csv")
 
@@ -62,8 +64,10 @@ def main():
         validation_size = 0.1
         if dataset_to_use == "2":
             feature_sel = True
+        elif dataset_to_use == "3":
+            rebalancing = True
 
-    X_train, X_valid, X_test, y_train, y_valid, y_test = preprocessing(dataset, label, test_size, validation_size, feature_sel)
+    X_train, X_valid, X_test, y_train, y_valid, y_test = preprocessing(dataset, label, test_size, validation_size, feature_sel, rebalancing)
 
 
 if __name__ == "__main__":

@@ -1,23 +1,25 @@
-from sklearn import feature_selection
+import matplotlib.pyplot as plt
+import seaborn as sns
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler
-import seaborn as sns
-import matplotlib.pyplot as plt
+from collections import Counter
+from imblearn.over_sampling import SMOTE
+from imblearn.under_sampling import RandomUnderSampler
+import pandas as pd
 
-def correlation_heatmap(dataset):
+def apply_feature_selection(dataset):
+    # Print correlation heatmap
     plt.figure(figsize=(10, 6))
     sns.heatmap(dataset.corr(), annot=True, cmap='coolwarm', fmt=".2f")
     plt.title("Feature Correlation Heatmap")
     plt.show()
 
-def apply_feature_selection(dataset):
     corr_matrix = dataset.corr()
     drop_cols = set()
 
     # Correlation threshold
     threshold = 0.6
 
-    # Scansiona la matrice di correlazione
     for i in range(len(corr_matrix.columns)):
         for j in range(i):
             if abs(corr_matrix.iloc[i, j]) > threshold:
@@ -26,6 +28,48 @@ def apply_feature_selection(dataset):
 
     print(f"\nFeatures to remove: {drop_cols}")
     return dataset.drop(columns=drop_cols)
+
+# Function to balance classes
+# oversample_threshold: Soglia minima per applicare SMOTE (default 0.3)
+# undersample_threshold: Soglia massima per applicare undersampling (default 0.7)
+def apply_balancing(dataset, target, oversample_threshold=0.3, undersample_threshold=0.7):
+    sns.countplot(x = dataset[target])
+    plt.title("Classes Distribution")
+    plt.show()
+
+    X = dataset.drop(columns = [target])
+    y = dataset[target]
+
+    class_counts = Counter(y)
+    total_samples = sum(class_counts.values())
+
+    max_class = max(class_counts, key = class_counts.get)
+    min_class = min(class_counts, key = class_counts.get)
+
+    max_ratio = class_counts[max_class] / total_samples
+    min_ratio = class_counts[min_class] / class_counts[max_class]
+
+    print(f"\nClasses distribution: {class_counts}")
+
+    if min_ratio < oversample_threshold:
+        print("Applying oversampling\n")
+        smote = SMOTE(random_state=42)
+        X_resampled, y_resampled = smote.fit_resample(X, y)
+
+    elif max_ratio > undersample_threshold:
+        print("Applying undersampling\n")
+        rus = RandomUnderSampler(random_state=42)
+        X_resampled, y_resampled = rus.fit_resample(X, y)
+
+    else:
+        print("Classes already balanced, nothing to do!\n")
+        return dataset
+
+    dataset_resampled = pd.DataFrame(X_resampled, columns=X.columns)
+    dataset_resampled[target] = y_resampled
+
+    print(f"\nDistribution after balancing: {Counter(dataset_resampled[target])}")
+    return dataset_resampled
 
 # Function to encode Obesity dataset
 def encode_obesity_dataset(dataset):
@@ -53,12 +97,15 @@ def encode_obesity_dataset(dataset):
     show_encodings('NObeyesdad')
 
 # Function to preprocess dataset
-def preprocessing(dataset, target, test_size, validation_size, feature_sel):
+def preprocessing(dataset, target, test_size, validation_size, feature_sel, rebalancing):
     # To test feature selection on dataset
     if feature_sel:
         # Print correlation heatmap for feature selection
         correlation_heatmap(dataset)
         dataset = apply_feature_selection(dataset)
+
+    if rebalancing:
+        dataset = apply_balancing(dataset, target)
 
     # Drop duplicates
     print(f"\nFound {dataset.duplicated().sum()} duplicated records!\n")
