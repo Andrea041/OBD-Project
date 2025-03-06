@@ -1,6 +1,4 @@
-import pandas as pd
-
-from Preprocessing import *
+from preprocessing import *
 
 def print_menu(message, choice_number):
     while True:
