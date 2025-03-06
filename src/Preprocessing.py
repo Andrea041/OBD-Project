@@ -101,7 +101,6 @@ def preprocessing(dataset, target, test_size, validation_size, feature_sel, reba
     # To test feature selection on dataset
     if feature_sel:
         # Print correlation heatmap for feature selection
-        correlation_heatmap(dataset)
         dataset = apply_feature_selection(dataset)
 
     if rebalancing:
