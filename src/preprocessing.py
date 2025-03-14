@@ -37,14 +37,14 @@ def apply_balancing(dataset, target, oversample_threshold=0.3, undersample_thres
     plt.title("Classes Distribution")
     plt.show()
 
-    X = dataset.drop(columns = [target])
+    X = dataset.drop(columns=[target])
     y = dataset[target]
 
     class_counts = Counter(y)
     total_samples = sum(class_counts.values())
 
-    max_class = max(class_counts, key = class_counts.get)
-    min_class = min(class_counts, key = class_counts.get)
+    max_class = max(class_counts, key=class_counts.get)
+    min_class = min(class_counts, key=class_counts.get)
 
     max_ratio = class_counts[max_class] / total_samples
     min_ratio = class_counts[min_class] / class_counts[max_class]
@@ -111,7 +111,7 @@ def preprocessing(dataset, target, test_size, validation_size, feature_sel, reba
     dataset = dataset.drop_duplicates()
 
     # Split features and labels
-    X = dataset.drop(columns = [target])
+    X = dataset.drop(columns=[target])
     y = dataset[target]
 
     # Remove records with Nan value in target column
@@ -121,15 +121,15 @@ def preprocessing(dataset, target, test_size, validation_size, feature_sel, reba
 
     # Substitute Nan values with median of the column
     if X.isnull().sum().any():
-        X.fillna(X.median(), inplace = True)
+        X.fillna(X.median(), inplace=True)
 
     # Standardization
     ss = StandardScaler()
     X = ss.fit_transform(X)
 
     # Train-test split
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = test_size, random_state = 42)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
     # Train-validation split
-    X_train, X_valid, y_train, y_valid = train_test_split(X_train, y_train, test_size = validation_size, random_state = 42)
+    X_train, X_valid, y_train, y_valid = train_test_split(X_train, y_train, test_size=validation_size, random_state=42)
 
     return X_train, X_valid, X_test, y_train, y_valid, y_test
