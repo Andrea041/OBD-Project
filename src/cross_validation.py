@@ -3,28 +3,27 @@ import logging
 import threading
 import time
 
+import numpy as np
+
 from train import train_model
 from backpropagation import *
 
-def evaluate_model(X_valid, y_valid, train_parameters, activation_function):
-    class_probabilities, _ = forward_pass(X_valid, train_parameters, activation_function, "softmax", classes_number=len(np.unique(y_valid)))
+import numpy as np
 
-    y = np.argmax(class_probabilities, axis=0)
+def evaluate_model(X_valid, y_valid, train_parameters, activation_function, classes_number=0):
+    class_probabilities, _ = forward_pass(X_valid, train_parameters, activation_function, "softmax", classes_number)
 
-    if len(y_valid.shape) > 1 and y_valid.shape[1] > 1:
-        y_hat = np.argmax(y_valid, axis=1)
-    else:
-        y_hat =  np.array(y_valid).flatten()
+    y_pred = np.argmax(class_probabilities, axis=0)
+    y_true = np.ravel(y_valid)
 
-    accuracy = np.mean(y == y_hat) * 100
+    accuracy = np.mean(y_pred == y_true) * 100
 
-    num_classes = len(np.unique(y_hat))
     precision_list, recall_list, f1_list = [], [], []
 
-    for c in range(num_classes):
-        TP = np.sum((y_hat == c) & (y == c))  # True Positives
-        FP = np.sum((y_hat != c) & (y == c))  # False Positives
-        FN = np.sum((y_hat == c) & (y != c))  # False Negatives
+    for c in range(classes_number):
+        TP = np.sum((y_pred == c) & (y_true == c))  # True Positives
+        FP = np.sum((y_pred == c) & (y_true != c))  # False Positives
+        FN = np.sum((y_pred != c) & (y_true == c))  # False Negatives
 
         precision = TP / (TP + FP) if (TP + FP) > 0 else 0
         recall = TP / (TP + FN) if (TP + FN) > 0 else 0
@@ -40,6 +39,7 @@ def evaluate_model(X_valid, y_valid, train_parameters, activation_function):
 
     return accuracy, precision, recall, f1
 
+
 def cross_validation(X_train, y_train, X_valid, y_valid, activation_function, lambda_list, layers, regularization):
     cost_lambda_config = {}
 
@@ -53,7 +53,7 @@ def cross_validation(X_train, y_train, X_valid, y_valid, activation_function, la
     # Function to train the model
     def train(lambda_reg, nn_config):
         train_parameters, cost = train_model(X_train, y_train, nn_config, activation_function, lambda_reg, regularization)
-        accuracy, _, _, _ = evaluate_model(X_valid, y_valid, train_parameters, activation_function)
+        accuracy, _, _, _ = evaluate_model(X_valid, y_valid, train_parameters, activation_function, classes_number=len(np.unique(y_train)))
 
         return lambda_reg, accuracy, train_parameters, cost
 
@@ -73,13 +73,11 @@ def cross_validation(X_train, y_train, X_valid, y_valid, activation_function, la
 
     from concurrent.futures import ThreadPoolExecutor
 
-    # Supponiamo che le seguenti variabili siano già definite:
-    # lambda_list, layers, train, cost_lambda_config, best_val_accuracy, best_lambda, best_parameters
-
     with ThreadPoolExecutor() as executor:
         futures = {}
         for lambda_reg in lambda_list:
             for nn_config in layers:
+                start_time_training = time.time()
                 future = executor.submit(train, lambda_reg, nn_config)
                 futures[future] = (lambda_reg, nn_config)
 
@@ -87,7 +85,8 @@ def cross_validation(X_train, y_train, X_valid, y_valid, activation_function, la
             lambda_reg, nn_config = futures[future]
             try:
                 result_lambda, val_accuracy, parameters, costs = future.result()
-                print(f"\nLambda: {result_lambda}, Neural Network Configuration: {nn_config}, Validation Accuracy: {val_accuracy} %, Loss: {costs}")
+                end_time_training = time.time()
+                print(f"\nLambda: {result_lambda}, Neural Network Configuration: {nn_config}, Validation Accuracy: {val_accuracy} %, Time spent: {end_time_training - start_time_training:.2f} seconds")
 
                 if result_lambda not in cost_lambda_config:
                     cost_lambda_config[result_lambda] = {}

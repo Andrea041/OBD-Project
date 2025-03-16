@@ -1,5 +1,3 @@
-from audioop import error
-
 import numpy as np
 
 def tanh(z):
@@ -13,8 +11,8 @@ def relu(z):
     return a
 
 def softmax(z):
-    exp_Z = np.exp(z - np.max(z, axis=0, keepdims=True))
-    a = exp_Z / np.sum(exp_Z, axis=0, keepdims=True)
+    exp_z = np.exp(z - np.max(z))
+    a = exp_z / exp_z.sum(axis=0)
 
     return a
 

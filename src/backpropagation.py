@@ -34,8 +34,7 @@ def forward_pass(X, param, activation_function, output_layer_activation="softmax
         store[f"z{l}"] = z
         store[f"a_prev{l}"] = a_prev
 
-    if a.shape != (classes_number, X.shape[0]):
-        assert a.shape == (classes_number, X.shape[0])
+    assert a.shape == (classes_number, X.shape[0]), print(a.shape)
 
     return a, store
 
@@ -61,13 +60,13 @@ def backward(da, cache, activation_function, lambda_reg=0, regularization=None):
     # Compute db
     db = (1. / samples_number) * np.sum(dz, axis=1, keepdims=True)
 
-    # Compute da_succ = W^T * grad
+    # Compute da_lPrev = W^T * grad
     grad_next_layer = np.dot(W.T, dz)
 
     return grad_next_layer, dW, db
 
 
-def backward_pass(a, y, mem, param, activation_function="ReLU", lambda_reg=0, regularization=None):
+def backward_pass(a, y, mem, param, activation_function="ReLU", lambda_reg=0, regularization=None, classes_number=0):
     epsilon = 1e-16
     a = np.clip(a, epsilon, 1 - epsilon)
 
@@ -75,8 +74,13 @@ def backward_pass(a, y, mem, param, activation_function="ReLU", lambda_reg=0, re
     grads = {}
 
     # Output layer's gradient
-    classes_number = len(np.unique(y))
-    y = to_categorical(y.flatten(), classes_number).T
+    try:
+        y = to_categorical(y.flatten(), classes_number).T
+    except IndexError as e:
+        # Normalizing y if necessary
+        y_normalized = y - np.min(y)
+        y = to_categorical(y_normalized, classes_number).T
+
     da = a - y
 
     current_cache = (mem[f"a{layers_number - 1}"], param[f"W{layers_number}"], mem[f"z{layers_number}"])
@@ -89,7 +93,7 @@ def backward_pass(a, y, mem, param, activation_function="ReLU", lambda_reg=0, re
     # Backpropagation for previous layers
     for l in reversed(range(1, layers_number)):
         current_cache = (mem[f"a{l - 1}"], param[f"W{l}"], mem[f"z{l}"])
-        dA_prev, dW, db = backward(grad_next_layer, current_cache, activation_function, lambda_reg=lambda_reg, regularization=regularization)
+        grad_next_layer, dW, db = backward(grad_next_layer, current_cache, activation_function, lambda_reg=lambda_reg, regularization=regularization)
 
         # Store gradients for next layer in the neural network:
         grads[f"dW{l}"] = dW
@@ -98,14 +102,18 @@ def backward_pass(a, y, mem, param, activation_function="ReLU", lambda_reg=0, re
     return grads
     
 
-def calculate_cost(a, y, param, lambda_reg, regularization):
-    samples_number = len(np.unique(y))
+def calculate_cost(a, y, param, lambda_reg, regularization, classes_number=0):
+    samples_number = y.shape[0]
 
     epsilon = 1e-16
     a = np.clip(a, epsilon, 1 - epsilon)
 
-    classes_number = len(np.unique(y))
-    y = to_categorical(np.array(y).flatten(), classes_number).T
+    try:
+        y = to_categorical(np.array(y).flatten(), classes_number).T
+    except IndexError as e:
+        # Normalizing y if necessary
+        y_normalized = y - np.min(y)
+        y = to_categorical(y_normalized, classes_number).T
 
     cross_entropy = -np.sum(np.multiply(y, np.log(a))) / samples_number
 

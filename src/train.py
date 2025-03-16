@@ -34,14 +34,14 @@ def train_model(X_train, y_train, layers, activation_function, lambda_reg, regul
         mini_batches = generate_mini_batches(X_train, y_train, BATCH_SIZE)
 
         for X_mini_batch, y_mini_batch in mini_batches:
-            a, mem = forward_pass(X_mini_batch, parameters, activation_function, classes_number=len(np.unique(y_mini_batch)))
-            costs = calculate_cost(a, y_mini_batch, parameters, lambda_reg, regularization)
-            grads = backward_pass(a, y_mini_batch, mem, parameters, activation_function, lambda_reg, regularization)
+            a, mem = forward_pass(X_mini_batch, parameters, activation_function, classes_number=len(np.unique(y_train)))
+            costs = calculate_cost(a, y_mini_batch, parameters, lambda_reg, regularization, classes_number=len(np.unique(y_train)))
+            grads = backward_pass(a, y_mini_batch, mem, parameters, activation_function, lambda_reg, regularization, classes_number=len(np.unique(y_train)))
             parameters, momentum_parameters = update_parameters(parameters, grads, learning_rate, APPLY_MOMENTUM, BETA_MOMENTUM)
 
         # Compute y_hat
         a_epoch, epoch_mem = forward_pass(X_train, parameters, activation_function, classes_number=len(np.unique(y_train)))
-        epoch_cost = calculate_cost(a_epoch, y_train, parameters, lambda_reg, regularization)
+        epoch_cost = calculate_cost(a_epoch, y_train, parameters, lambda_reg, regularization, classes_number=len(np.unique(y_train)))
         cost_per_epoch.append(epoch_cost)
 
     return parameters, cost_per_epoch

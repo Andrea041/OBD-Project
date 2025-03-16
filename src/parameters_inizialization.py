@@ -17,23 +17,22 @@ def param_initializer(activation_function, layers):
 def initialize_parameters_he(layers):
     np.random.seed(3)
     parameters = {}
-    L = len(layers) - 1
+    layers_number = len(layers) - 1
 
-    for l in range(1, L + 1):
+    for l in range(1, layers_number + 1):
         parameters['W' + str(l)] = np.random.randn(layers[l], layers[l - 1]) * np.sqrt(2.0 / layers[l - 1])
         parameters['b' + str(l)] = np.zeros((layers[l], 1))
-
-    assert parameters[f"W{l}"].shape == (layers[l], layers[l - 1])
-    assert parameters[f"b{l}"].shape == (layers[l], 1)
+        assert parameters[f"W{l}"].shape == (layers[l], layers[l - 1])
+        assert parameters[f"b{l}"].shape == (layers[l], 1)
 
     return parameters
 
 def initialize_parameters_xavier(layers):
     np.random.seed(3)
     parameters = {}
-    L = len(layers) - 1  # of layer
+    layers_number = len(layers) - 1  # of layer
 
-    for l in range(1, L + 1):
+    for l in range(1, layers_number + 1):
         parameters[f"W{l}"] = np.random.randn(layers[l], layers[l - 1]) * np.sqrt(1 / layers[l - 1])
         parameters[f"b{l}"] = np.zeros((layers[l], 1))
 
