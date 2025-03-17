@@ -25,6 +25,11 @@ def train_model(X_train, y_train, layers, activation_function, lambda_reg, regul
     learning_rate = ALPHA
     decay_rate = DECAY_RATE
 
+    # early stopping variables
+    best_loss = np.inf
+    wait = 0 # counts the number of epochs without improvements
+    patience = 5
+
     parameters, momentum_parameters = param_initializer(activation_function, layers)
 
     for epoch in range(EPOCH_NUMBER):
@@ -43,5 +48,16 @@ def train_model(X_train, y_train, layers, activation_function, lambda_reg, regul
         a_epoch, epoch_mem = forward_pass(X_train, parameters, activation_function, classes_number=len(np.unique(y_train)))
         epoch_cost = calculate_cost(a_epoch, y_train, parameters, lambda_reg, regularization, classes_number=len(np.unique(y_train)))
         cost_per_epoch.append(epoch_cost)
+
+        if EARLY_STOPPING:
+            if epoch_cost < best_loss:
+                best_loss = epoch_cost
+                wait = 0
+            else:
+                wait += 1
+
+            if wait >= patience:
+                print(f"Early stopping at epoch: {epoch + 1}!")
+                break
 
     return parameters, cost_per_epoch

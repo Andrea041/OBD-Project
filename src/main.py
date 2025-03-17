@@ -27,12 +27,18 @@ def main():
         "2 - Obesity with Feature Selection\n" +
         "3 - Obesity with Balancing\n" +
         "4 - Predictive maintenance\n" +
-        "5 - Customer segmentation\n" +
-        "6 - Air quality and pollution assessment\n" +
-        "7 - Sloan Digital Sky Survey - DR18\n" +
-        "8 - Dry bean\n" +
-        "9 - Android Malware detection\n",
-        ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
+        "5 - Predictive maintenance with Feature Selection\n" +
+        "6 - Predictive maintenance with Balancing\n" +
+        "7 - Air quality and pollution assessment\n" +
+        "8 - Air quality and pollution assessment with Feature Selection\n" +
+        "9 - Air quality and pollution assessment with Balancing\n" +
+        "10 - Sloan Digital Sky Survey - DR18\n" +
+        "11 - Sloan Digital Sky Survey - DR18 with Feature Selection\n" +
+        "12 - Sloan Digital Sky Survey - DR18 with Balancing\n" +
+        "13 - Dry bean\n" +
+        "14 - Dry bean with Feature Selection\n" +
+        "15 - Dry bean with Balancing\n",
+        ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15"]
     )
 
     # Determining which activation function to use
@@ -75,47 +81,42 @@ def main():
             feature_sel = True
         elif dataset_to_use == "3":
             rebalancing = True
-    elif dataset_to_use == "4":
+    elif dataset_to_use == "4" or dataset_to_use == "5" or dataset_to_use == "6": # Tenere
         dataset_name = "predictive_maintenance"
         dataset = pd.read_csv("../datasets/" + dataset_name + ".csv")
         label = "Failure Type"
         dataset, _ = encode_dataset(dataset, label)
-    elif dataset_to_use == "5":
-        dataset_name = "customer_segmentation"
-        dataset = pd.read_csv("../datasets/" + dataset_name + ".csv")
-        label = "Var_1"
-        dataset, _ = encode_dataset(dataset, label)
-    elif dataset_to_use == "6":
+        if dataset_to_use == "5":
+            feature_sel = True
+        elif dataset_to_use == "6":
+            rebalancing = True
+    elif dataset_to_use == "7" or dataset_to_use == "8" or dataset_to_use == "9": # Tenere
         dataset_name = "updated_pollution_dataset"
         dataset = pd.read_csv("../datasets/" + dataset_name + ".csv")
         label = "Air Quality"
         dataset, _ = encode_dataset(dataset, label)
-    elif dataset_to_use == "7": # Tenere
+        if dataset_to_use == "8":
+            feature_sel = True
+        elif dataset_to_use == "9":
+            rebalancing = True
+    elif dataset_to_use == "10" or dataset_to_use == "11" or dataset_to_use == "12": # Tenere
         dataset_name = "SDSS_DR18"
         dataset = pd.read_csv("../datasets/" + dataset_name + ".csv")
         label = "class"
         dataset, _ = encode_dataset(dataset, label)
-    elif dataset_to_use == "8":
+        if dataset_to_use == "11":
+            feature_sel = True
+        elif dataset_to_use == "12":
+            rebalancing = True
+    elif dataset_to_use == "13" or dataset_to_use == "14" or dataset_to_use == "15": # Tenere
         dataset_name = "Dry_Bean_Dataset"
         dataset = pd.read_csv("../datasets/" + dataset_name + ".csv")
         label = "Class"
         dataset, _ = encode_dataset(dataset, label)
-    elif dataset_to_use == "9":
-        def ip_to_int(ip):
-            try:
-                ip = ipaddress.ip_address(ip)
-                return int(ip)
-            except ValueError:
-                print(f"\nInvalid ip addresses found: {ip}")
-                return np.nan
-
-        dataset_name = "Android_Malware"
-        dataset = pd.read_csv("../datasets/" + dataset_name + ".csv", low_memory=False)
-        label = "Label"
-        dataset.drop(['Unnamed: 0','Flow ID',' Timestamp',' CWE Flag Count',' Down/Up Ratio','Fwd Avg Bytes/Bulk'], axis=1, inplace=True)
-        dataset[' Source IP'] = dataset[' Source IP'].apply(ip_to_int)
-        dataset[' Destination IP'] = dataset[' Destination IP'].apply(ip_to_int)
-        dataset, _ = encode_dataset(dataset, label)
+        if dataset_to_use == "14":
+            feature_sel = True
+        elif dataset_to_use == "15":
+            rebalancing = True
 
     test_size = 0.2
     validation_size = 0.1
@@ -133,13 +134,13 @@ def main():
     first_layer = X_train.shape[1]
     last_layer = len(np.unique(y_train))
     neural_network_layers = [[first_layer, 32, 32, last_layer],
-                             #[first_layer, 32, 64, last_layer],
+                             [first_layer, 32, 64, last_layer],
                              [first_layer, 64, 64, last_layer],
-                             #[first_layer, 64, 128, last_layer],
+                             [first_layer, 64, 128, last_layer],
                              [first_layer, 128, 128, last_layer],
-                             #[first_layer, 128, 256, last_layer],
+                             [first_layer, 128, 256, last_layer],
                              [first_layer, 256, 256, last_layer],
-                             #[first_layer, 256, 512, last_layer],
+                             [first_layer, 256, 512, last_layer],
                              [first_layer, 512, 512, last_layer]]
 
     # Start cross validation
