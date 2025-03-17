@@ -6,15 +6,21 @@ from collections import Counter
 from imblearn.over_sampling import SMOTE
 from imblearn.under_sampling import RandomUnderSampler
 import pandas as pd
+import numpy as np
 
-def apply_feature_selection(dataset, target):
+def apply_feature_selection(X_train, target):
+    original_type = type(X_train)
+
+    if isinstance(X_train, np.ndarray):
+        X_train = pd.DataFrame(X_train)
+
     # Print correlation heatmap
     plt.figure(figsize=(10, 6))
-    sns.heatmap(dataset.corr(), annot=True, cmap='coolwarm', fmt=".2f")
+    sns.heatmap(X_train.corr(), annot=True, cmap='coolwarm', fmt=".2f")
     plt.title("Feature Correlation Heatmap")
     plt.show()
 
-    corr_matrix = dataset.corr()
+    corr_matrix = X_train.corr()
     drop_cols = set()
 
     # Correlation threshold
@@ -29,20 +35,23 @@ def apply_feature_selection(dataset, target):
 
     print(f"\nFeatures to remove: {drop_cols}")
     print(f"Features removed: {len(drop_cols)}")
-    return dataset.drop(columns=drop_cols)
+
+    X_train = X_train.drop(columns=drop_cols)
+
+    if original_type is np.ndarray:
+        return X_train.to_numpy()
+
+    return X_train
 
 # Function to balance classes
 # oversample_threshold: Soglia minima per applicare SMOTE (default 0.3)
 # undersample_threshold: Soglia massima per applicare undersampling (default 0.7)
-def apply_balancing(dataset, target, oversample_threshold=0.3, undersample_threshold=0.7):
+def apply_balancing(X_train, y_train, dataset, target, oversample_threshold=0.3, undersample_threshold=0.7):
     sns.countplot(x = dataset[target])
     plt.title("Classes Distribution")
     plt.show()
 
-    X = dataset.drop(columns=[target])
-    y = dataset[target]
-
-    class_counts = Counter(y)
+    class_counts = Counter(y_train)
     total_samples = sum(class_counts.values())
 
     max_class = max(class_counts, key=class_counts.get)
@@ -56,22 +65,18 @@ def apply_balancing(dataset, target, oversample_threshold=0.3, undersample_thres
     if min_ratio < oversample_threshold:
         print("Applying oversampling\n")
         smote = SMOTE(random_state=42)
-        X_resampled, y_resampled = smote.fit_resample(X, y)
+        X_resampled, y_resampled = smote.fit_resample(X_train, y_train)
 
     elif max_ratio > undersample_threshold:
         print("Applying undersampling\n")
         rus = RandomUnderSampler(random_state=42)
-        X_resampled, y_resampled = rus.fit_resample(X, y)
-
+        X_resampled, y_resampled = rus.fit_resample(X_train, y_train)
     else:
         print("Classes already balanced, nothing to do!\n")
-        return dataset
+        return X_train, y_train
 
-    dataset_resampled = pd.DataFrame(X_resampled, columns=X.columns)
-    dataset_resampled[target] = y_resampled
-
-    print(f"\nDistribution after balancing: {Counter(dataset_resampled[target])}")
-    return dataset_resampled
+    print(f"\nDistribution after balancing: {Counter(y_resampled)}")
+    return X_resampled, y_resampled
 
 def show_encodings(column_name, label_encoders):
     if column_name in label_encoders:
@@ -123,14 +128,6 @@ def encode_dataset(dataset, label):
 
 # Function to preprocess dataset
 def preprocessing(dataset, target, test_size, validation_size, feature_sel, rebalancing):
-    # To test feature selection on dataset
-    if feature_sel:
-        # Print correlation heatmap for feature selection
-        dataset = apply_feature_selection(dataset, target)
-
-    if rebalancing:
-        dataset = apply_balancing(dataset, target)
-
     # Drop duplicates
     print(f"\nFound {dataset.duplicated().sum()} duplicated records!\n")
     dataset = dataset.drop_duplicates()
@@ -156,5 +153,13 @@ def preprocessing(dataset, target, test_size, validation_size, feature_sel, reba
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
     # Train-validation split
     X_train, X_valid, y_train, y_valid = train_test_split(X_train, y_train, test_size=validation_size, random_state=42)
+
+    # To test feature selection on dataset
+    if feature_sel:
+        # Print correlation heatmap for feature selection
+        X_train = apply_feature_selection(X_train, target)
+
+    if rebalancing:
+        X_train, y_train = apply_balancing(X_train, y_train, dataset, target)
 
     return X_train, X_valid, X_test, y_train, y_valid, y_test
