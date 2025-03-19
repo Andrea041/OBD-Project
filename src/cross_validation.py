@@ -3,8 +3,6 @@ import logging
 import threading
 import time
 
-import numpy as np
-
 from train import train_model
 from backpropagation import *
 

@@ -91,11 +91,6 @@ def show_encodings(column_name, label_encoders):
 def encode_dataset(dataset, label):
     # Selezione delle colonne categoriche
     column_map = {
-        "NObeyesdad": ['Gender', 'family_history_with_overweight', 'FAVC', 'CAEC', 'SMOKE',
-                       'SCC', 'CALC', 'MTRANS', 'NObeyesdad'],
-        "Failure Type": ['UDI', 'Product ID', 'Type', 'Air temperature [K]', 'Process temperature [K]',
-                         'Rotational speed [rpm]',
-                         'Torque [Nm]', 'Tool wear [min]', 'Target', 'Failure Type'],
         "Air Quality": ['Temperature', 'Humidity', 'PM2.5', 'PM10', 'NO2', 'SO2', 'CO', 'Proximity_to_Industrial_Areas',
                         'Population_Density', 'Air Quality'],
         "class": ['objid', 'specobjid', 'ra', 'dec', 'u', 'g', 'r', 'i', 'z', 'run', 'rerun', 'camcol', 'field', 'plate', 'mjd', 'fiberid', 'petroRad_u',
@@ -106,12 +101,11 @@ def encode_dataset(dataset, label):
                   'Extent', 'Solidity', 'roundness', 'Compactness', 'ShapeFactor1', 'ShapeFactor2', 'ShapeFactor3', 'ShapeFactor4', 'Class'],
     }
 
-    # Verifica se il label è valido
+
     if label not in column_map:
         raise ValueError(f"Label '{label}' not recognized. Choose between: {list(column_map.keys())}")
 
     cat_cols = column_map[label]
-
     cat_cols = [col for col in cat_cols if col in dataset.columns]
 
     label_encoders = {}
@@ -135,6 +129,8 @@ def preprocessing(dataset, target, test_size, validation_size, feature_sel, reba
     # Split features and labels
     X = dataset.drop(columns=[target])
     y = dataset[target]
+
+    print(f"Features number: {X.shape[1]}\n")
 
     # Remove records with Nan value in target column
     mask = y.notnull()

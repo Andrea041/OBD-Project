@@ -30,7 +30,7 @@ def initialize_parameters_he(layers):
 def initialize_parameters_xavier(layers):
     np.random.seed(3)
     parameters = {}
-    layers_number = len(layers) - 1  # of layer
+    layers_number = len(layers) - 1
 
     for l in range(1, layers_number + 1):
         parameters[f"W{l}"] = np.random.randn(layers[l], layers[l - 1]) * np.sqrt(1 / layers[l - 1])

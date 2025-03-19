@@ -1,5 +1,3 @@
-import ipaddress
-
 from preprocessing import *
 from costants import *
 from cross_validation import *
@@ -23,22 +21,16 @@ def main():
     # Determining which dataset to use
     dataset_to_use = print_menu(
         "Choose the dataset you would like to use:\n" +
-        "1 - Obesity\n" +
-        "2 - Obesity with Feature Selection\n" +
-        "3 - Obesity with Balancing\n" +
-        "4 - Predictive maintenance\n" +
-        "5 - Predictive maintenance with Feature Selection\n" +
-        "6 - Predictive maintenance with Balancing\n" +
-        "7 - Air quality and pollution assessment\n" +
-        "8 - Air quality and pollution assessment with Feature Selection\n" +
-        "9 - Air quality and pollution assessment with Balancing\n" +
-        "10 - Sloan Digital Sky Survey - DR18\n" +
-        "11 - Sloan Digital Sky Survey - DR18 with Feature Selection\n" +
-        "12 - Sloan Digital Sky Survey - DR18 with Balancing\n" +
-        "13 - Dry bean\n" +
-        "14 - Dry bean with Feature Selection\n" +
-        "15 - Dry bean with Balancing\n",
-        ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15"]
+        "1 - Air quality and pollution assessment\n" +
+        "2 - Air quality and pollution assessment with Feature Selection\n" +
+        "3 - Air quality and pollution assessment with Balancing\n" +
+        "4 - Sloan Digital Sky Survey - DR18\n" +
+        "5 - Sloan Digital Sky Survey - DR18 with Feature Selection\n" +
+        "6 - Sloan Digital Sky Survey - DR18 with Balancing\n" +
+        "7 - Dry bean\n" +
+        "8 - Dry bean with Feature Selection\n" +
+        "9 - Dry bean with Balancing\n",
+        ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
     )
 
     # Determining which activation function to use
@@ -71,51 +63,32 @@ def main():
         regularization = None
 
     # Preprocess chosen dataset
-    if dataset_to_use == "1" or dataset_to_use == "2" or dataset_to_use == "3": # Tenere
-        dataset_name = "Obesity"
+    if dataset_to_use == "1" or dataset_to_use == "2" or dataset_to_use == "3":
+        dataset_name = "updated_pollution_dataset"
         dataset = pd.read_csv("../datasets/" + dataset_name + ".csv")
-        # Encodings of strings in numbers
-        label = "NObeyesdad"
+        label = "Air Quality"
         dataset, _ = encode_dataset(dataset, label)
         if dataset_to_use == "2":
             feature_sel = True
         elif dataset_to_use == "3":
             rebalancing = True
-    elif dataset_to_use == "4" or dataset_to_use == "5" or dataset_to_use == "6": # Tenere
-        dataset_name = "predictive_maintenance"
+    elif dataset_to_use == "4" or dataset_to_use == "5" or dataset_to_use == "6":
+        dataset_name = "SDSS_DR18"
         dataset = pd.read_csv("../datasets/" + dataset_name + ".csv")
-        label = "Failure Type"
+        label = "class"
         dataset, _ = encode_dataset(dataset, label)
         if dataset_to_use == "5":
             feature_sel = True
         elif dataset_to_use == "6":
             rebalancing = True
-    elif dataset_to_use == "7" or dataset_to_use == "8" or dataset_to_use == "9": # Tenere
-        dataset_name = "updated_pollution_dataset"
-        dataset = pd.read_csv("../datasets/" + dataset_name + ".csv")
-        label = "Air Quality"
-        dataset, _ = encode_dataset(dataset, label)
-        if dataset_to_use == "8":
-            feature_sel = True
-        elif dataset_to_use == "9":
-            rebalancing = True
-    elif dataset_to_use == "10" or dataset_to_use == "11" or dataset_to_use == "12": # Tenere
-        dataset_name = "SDSS_DR18"
-        dataset = pd.read_csv("../datasets/" + dataset_name + ".csv")
-        label = "class"
-        dataset, _ = encode_dataset(dataset, label)
-        if dataset_to_use == "11":
-            feature_sel = True
-        elif dataset_to_use == "12":
-            rebalancing = True
-    elif dataset_to_use == "13" or dataset_to_use == "14" or dataset_to_use == "15": # Tenere
+    elif dataset_to_use == "7" or dataset_to_use == "8" or dataset_to_use == "9":
         dataset_name = "Dry_Bean_Dataset"
         dataset = pd.read_csv("../datasets/" + dataset_name + ".csv")
         label = "Class"
         dataset, _ = encode_dataset(dataset, label)
-        if dataset_to_use == "14":
+        if dataset_to_use == "8":
             feature_sel = True
-        elif dataset_to_use == "15":
+        elif dataset_to_use == "9":
             rebalancing = True
 
     test_size = 0.2
