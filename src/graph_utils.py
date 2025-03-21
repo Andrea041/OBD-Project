@@ -32,7 +32,10 @@ def save_loss_plots(lossCost, dataset_name, activation_function, regularization_
         for nn_config, loss in nn_configs.items():
             # Crea loss graphs
             plt.plot(loss)
-            plt.title(f"Loss for lambda = {lambd}, NN Config = {nn_config}")
+            if lambd == -1:
+                plt.title(f"Loss without regularization, NN Config = {nn_config}")
+            else:
+                plt.title(f"Loss for lambda = {lambd}, NN Config = {nn_config}")
             plt.xlabel("Iterations")
             plt.ylabel("Loss")
 

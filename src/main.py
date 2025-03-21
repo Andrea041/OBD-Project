@@ -2,6 +2,7 @@ from preprocessing import *
 from costants import *
 from cross_validation import *
 from src.graph_utils import save_loss_plots
+import pandas as pd
 
 def print_menu(message, choice_number):
     while True:
@@ -12,6 +13,11 @@ def print_menu(message, choice_number):
             return choice
         else:
             print("Choice is not valid. Please select a valid input\n")
+
+def show_classes_distribution(dataset, target):
+    sns.countplot(x=dataset[target])
+    plt.title("Classes Distribution")
+    plt.show()
 
 def main():
     # Flags for testing dataset
@@ -60,13 +66,14 @@ def main():
     elif regularization == "2":
         regularization = "L2"
     elif regularization == "0":
-        regularization = None
+        regularization = ""
 
     # Preprocess chosen dataset
     if dataset_to_use == "1" or dataset_to_use == "2" or dataset_to_use == "3":
         dataset_name = "updated_pollution_dataset"
         dataset = pd.read_csv("../datasets/" + dataset_name + ".csv")
         label = "Air Quality"
+        show_classes_distribution(dataset, label)
         dataset, _ = encode_dataset(dataset, label)
         if dataset_to_use == "2":
             feature_sel = True
@@ -76,6 +83,7 @@ def main():
         dataset_name = "SDSS_DR18"
         dataset = pd.read_csv("../datasets/" + dataset_name + ".csv")
         label = "class"
+        show_classes_distribution(dataset, label)
         dataset, _ = encode_dataset(dataset, label)
         if dataset_to_use == "5":
             feature_sel = True
@@ -85,6 +93,7 @@ def main():
         dataset_name = "Dry_Bean_Dataset"
         dataset = pd.read_csv("../datasets/" + dataset_name + ".csv")
         label = "Class"
+        show_classes_distribution(dataset, label)
         dataset, _ = encode_dataset(dataset, label)
         if dataset_to_use == "8":
             feature_sel = True
@@ -101,7 +110,7 @@ def main():
     elif regularization == "L2":
         lambda_list = L2_LIST
     else:
-        lambda_list = None
+        lambda_list = []
 
     # Defining layer for our neural networks
     first_layer = X_train.shape[1]
@@ -120,6 +129,8 @@ def main():
     lambda_reg, _, parameters, loss_cost, total_time = cross_validation(X_train, y_train, X_valid,
                                                                        y_valid, activation_function, lambda_list,
                                                                        neural_network_layers, regularization)
+
+    print(f"\nTime spent for cross-validation: {total_time:.2f} seconds")
 
     save_loss_plots(loss_cost, dataset_name, activation_function, regularization)
 

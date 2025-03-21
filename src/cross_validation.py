@@ -69,13 +69,15 @@ def cross_validation(X_train, y_train, X_valid, y_valid, activation_function, la
     feedback_thread = threading.Thread(target=feedback_message)
     feedback_thread.start()
 
+    if not lambda_list:
+        lambda_list = [-1] # default value to apply no regularization
+
     from concurrent.futures import ThreadPoolExecutor
 
     with ThreadPoolExecutor() as executor:
         futures = {}
         for lambda_reg in lambda_list:
             for nn_config in layers:
-                start_time_training = time.time()
                 future = executor.submit(train, lambda_reg, nn_config)
                 futures[future] = (lambda_reg, nn_config)
 
@@ -83,8 +85,7 @@ def cross_validation(X_train, y_train, X_valid, y_valid, activation_function, la
             lambda_reg, nn_config = futures[future]
             try:
                 result_lambda, val_accuracy, parameters, costs = future.result()
-                end_time_training = time.time()
-                print(f"\nLambda: {result_lambda}, Neural Network Configuration: {nn_config}, Validation Accuracy: {val_accuracy} %, Time spent: {end_time_training - start_time_training:.2f} seconds")
+                print(f"\nLambda: {result_lambda}, Neural Network Configuration: {nn_config}, Validation Accuracy: {val_accuracy} %")
 
                 if result_lambda not in cost_lambda_config:
                     cost_lambda_config[result_lambda] = {}
@@ -105,6 +106,5 @@ def cross_validation(X_train, y_train, X_valid, y_valid, activation_function, la
     # Stop timer:
     end_time = time.time()
     total_time = end_time - start_time
-    print(f"\nTime spent in training: {total_time:.2f} seconds")
 
     return best_lambda, best_val_accuracy, best_parameters, cost_lambda_config, total_time

@@ -1,56 +1,44 @@
+from collections import Counter
+
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder, StandardScaler
-from collections import Counter
 from imblearn.over_sampling import SMOTE
 from imblearn.under_sampling import RandomUnderSampler
-import pandas as pd
-import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder, StandardScaler
 
-def apply_feature_selection(X_train, target):
-    original_type = type(X_train)
+def apply_feature_selection(dataset, target):
+    correlation_with_target = dataset.corr()[target].abs()
 
-    if isinstance(X_train, np.ndarray):
-        X_train = pd.DataFrame(X_train)
+    correlation_with_target = correlation_with_target.drop(target)
 
-    # Print correlation heatmap
     plt.figure(figsize=(10, 6))
-    sns.heatmap(X_train.corr(), annot=True, cmap='coolwarm', fmt=".2f")
-    plt.title("Feature Correlation Heatmap")
+    sns.barplot(x=correlation_with_target.index, y=correlation_with_target.values, palette="coolwarm")
+    plt.title(f"Correlation with Target: {target}")
+    plt.xticks(rotation=45)
     plt.show()
 
-    corr_matrix = X_train.corr()
-    drop_cols = set()
+    if target == 'class':
+        threshold = 0.6
+    else:
+        threshold = 0.3
 
-    # Correlation threshold
-    threshold = 0.7
+    features_to_keep = correlation_with_target[correlation_with_target > threshold].index.tolist()
 
-    for i in range(len(corr_matrix.columns)):
-        for j in range(i):
-            if abs(corr_matrix.iloc[i, j]) > threshold:
-                colname = corr_matrix.columns[i]
-                if colname != target:
-                    drop_cols.add(colname)
+    features_removed = [feature for feature in dataset.columns if feature not in features_to_keep + [target]]
 
-    print(f"\nFeatures to remove: {drop_cols}")
-    print(f"Features removed: {len(drop_cols)}")
+    print(f"Features to keep: {features_to_keep}")
+    print(f"Features removed: {features_removed}")
 
-    X_train = X_train.drop(columns=drop_cols)
+    dataset_selected = dataset[features_to_keep + [target]]
 
-    if original_type is np.ndarray:
-        return X_train.to_numpy()
+    return dataset_selected
 
-    return X_train
 
 # Function to balance classes
 # oversample_threshold: Soglia minima per applicare SMOTE (default 0.3)
 # undersample_threshold: Soglia massima per applicare undersampling (default 0.7)
-def apply_balancing(X_train, y_train, dataset, target, oversample_threshold=0.3, undersample_threshold=0.7):
-    sns.countplot(x = dataset[target])
-    plt.title("Classes Distribution")
-    plt.show()
-
+def apply_balancing(X_train, y_train, oversample_threshold=0.3, undersample_threshold=0.7):
     class_counts = Counter(y_train)
     total_samples = sum(class_counts.values())
 
@@ -124,11 +112,16 @@ def encode_dataset(dataset, label):
 def preprocessing(dataset, target, test_size, validation_size, feature_sel, rebalancing):
     # Drop duplicates
     print(f"\nFound {dataset.duplicated().sum()} duplicated records!\n")
-    dataset = dataset.drop_duplicates()
+    dataset_original = dataset.drop_duplicates()
 
-    # Split features and labels
-    X = dataset.drop(columns=[target])
-    y = dataset[target]
+    # To test feature selection on dataset
+    if feature_sel:
+        # Print correlation heatmap for feature selection
+        dataset_with_feature_selection = apply_feature_selection(dataset_original, target)
+        X = dataset_with_feature_selection.drop(columns=[target])
+    else:
+        X = dataset_original.drop(columns=[target])
+    y = dataset_original[target]
 
     print(f"Features number: {X.shape[1]}\n")
 
@@ -146,16 +139,11 @@ def preprocessing(dataset, target, test_size, validation_size, feature_sel, reba
     X = ss.fit_transform(X)
 
     # Train-test split
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, test_size=test_size, random_state=42)
     # Train-validation split
-    X_train, X_valid, y_train, y_valid = train_test_split(X_train, y_train, test_size=validation_size, random_state=42)
-
-    # To test feature selection on dataset
-    if feature_sel:
-        # Print correlation heatmap for feature selection
-        X_train = apply_feature_selection(X_train, target)
+    X_train, X_valid, y_train, y_valid = train_test_split(X_train, y_train, stratify=y_train, test_size=validation_size, random_state=42)
 
     if rebalancing:
-        X_train, y_train = apply_balancing(X_train, y_train, dataset, target)
+        X_train, y_train = apply_balancing(X_train, y_train)
 
     return X_train, X_valid, X_test, y_train, y_valid, y_test

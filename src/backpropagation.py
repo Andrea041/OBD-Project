@@ -134,5 +134,5 @@ def calculate_cost(a, y, param, lambda_reg, regularization, classes_number=0):
         l2_reg = (lambda_reg / (2 * samples_number)) * l2_reg
 
         return cross_entropy + l2_reg
-    elif regularization is None:
+    elif regularization == "":
         return cross_entropy
