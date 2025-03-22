@@ -20,7 +20,7 @@ def install_packages(package_list):
 
 verify_pip()
 
-packages = ["numpy", "matplotlib", "pandas", "scikit-learn", "imbalanced-learn", "seaborns"]
+packages = ["numpy", "matplotlib", "pandas", "scikit-learn", "imbalanced-learn", "seaborn"]
 install_packages(packages)
 
 print("All necessary packages have been installed. Ready to use")
