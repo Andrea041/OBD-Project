@@ -2,7 +2,7 @@
 This project implements a neural network for multiclass classification from scratch
 
 ## Requirements & Instructions to run the code
-# Requirements
+### Requirements
 Make sure you have the following packages installed:
 - numpy
 - matplotlib
@@ -11,7 +11,7 @@ Make sure you have the following packages installed:
 - imbalanced-learn
 - pandas
 
-# Install on MacOS
+### Install on Linux/MacOS
 If you don't have the required packages, you can install them using the requirements.txt file by running the following commands:
 
 ```sh
@@ -29,8 +29,4 @@ To deactivate the virtual environment, use:
 deactivate
 ```
 
-
-
-# Install on Linux
-
-# Install on Macos 
+# Install on Windows 
