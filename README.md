@@ -19,6 +19,10 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
+Or, if you already have an active environment you can only run:
+```sh
+pip install -r requirements.txt
+```
 
 To deactivate the virtual environment, use:
 ```sh
