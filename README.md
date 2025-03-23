@@ -1,5 +1,5 @@
 # Neural Network for Multiclass Classification 
-This project implements a neural network for multiclass classification from scratch
+This project implements a neural network for multiclass classification from scratch.
 
 ## Requirements & Instructions to run the code
 ### Requirements
@@ -46,3 +46,5 @@ To run the code:
 cd .\src
 python main.py
 ```
+
+> **Note:** There is a file `constants.py` where you can set the constants of the model as needed.
