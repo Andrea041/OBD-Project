@@ -29,8 +29,20 @@ To deactivate the virtual environment, use:
 deactivate
 ```
 
+Finally, to run the code:
+```sh
+cd src
+python main.py
+```
+
 ### Install on Windows 
 If you don't have the required packages, you can install them using the script `start_program.py` file by running the following command:
 ```sh
 python .\src\start_program.py
+```
+
+To run the code:
+```sh
+cd .\src
+python main.py
 ```
