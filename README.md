@@ -10,6 +10,7 @@ Make sure you have the following packages installed:
 - scikit-learn
 - imbalanced-learn
 - pandas
+- tensorflow
 
 ### Install on Linux/MacOS
 If you don't have the required packages, you can install them using the `requirements.txt` file by running the following commands:
