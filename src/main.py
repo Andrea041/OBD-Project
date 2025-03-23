@@ -1,7 +1,7 @@
 from preprocessing import *
 from costants import *
 from cross_validation import *
-from src.graph_utils import save_loss_plots
+from graph_utils import *
 import pandas as pd
 
 def print_menu(message, choice_number):
