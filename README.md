@@ -12,7 +12,7 @@ Make sure you have the following packages installed:
 - pandas
 
 ### Install on Linux/MacOS
-If you don't have the required packages, you can install them using the requirements.txt file by running the following commands:
+If you don't have the required packages, you can install them using the `requirements.txt` file by running the following commands:
 
 ```sh
 python3 -m venv venv
@@ -29,4 +29,8 @@ To deactivate the virtual environment, use:
 deactivate
 ```
 
-# Install on Windows 
+### Install on Windows 
+If you don't have the required packages, you can install them using the script `start_program.py` file by running the following command:
+```sh
+python .\src\start_program.py
+```
