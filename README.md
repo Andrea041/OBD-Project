@@ -10,6 +10,7 @@ Make sure you have the following packages installed:
 - scikit-learn
 - imbalanced-learn
 - pandas
+- tensorflow
 
 ### Install on Linux/MacOS
 If you don't have the required packages, you can install them using the `requirements.txt` file by running the following commands:
@@ -24,15 +25,15 @@ Or, if you already have an active environment you can only run:
 pip install -r requirements.txt
 ```
 
-To deactivate the virtual environment, use:
-```sh
-deactivate
-```
-
-Finally, to run the code:
+To run the code:
 ```sh
 cd src
 python main.py
+```
+
+To deactivate the virtual environment, use:
+```sh
+deactivate
 ```
 
 ### Install on Windows 
