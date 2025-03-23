@@ -1,4 +1,4 @@
-from costants import *
+from constants import *
 from parameters_inizialization import param_initializer
 from batch_generator import *
 from backpropagation import *

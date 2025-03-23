@@ -1,5 +1,5 @@
 from preprocessing import *
-from costants import *
+from constants import *
 from cross_validation import *
 from graph_utils import *
 import pandas as pd
