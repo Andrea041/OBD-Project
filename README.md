@@ -24,15 +24,15 @@ Or, if you already have an active environment you can only run:
 pip install -r requirements.txt
 ```
 
-To deactivate the virtual environment, use:
-```sh
-deactivate
-```
-
-Finally, to run the code:
+To run the code:
 ```sh
 cd src
 python main.py
+```
+
+To deactivate the virtual environment, use:
+```sh
+deactivate
 ```
 
 ### Install on Windows 
